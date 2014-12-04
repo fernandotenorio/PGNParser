@@ -41,14 +41,36 @@ class Square {
 
 public class PGNParser {
 	
+	static int PAWN_PUSH = 50;
+	static int PAWN_CAPTURE = 51;
+	static int ROOK_MOVE = 52;
+	static int ROOK_CAPTURE = 53;
+	static int KNIGHT_MOVE = 54;
+	static int KNIGHT_CAPTURE = 55;
+	static int BISPHOP_MOVE = 56;
+	static int BISHOP_CAPTURE = 57;
+	static int QUEEN_MOVE = 58;
+	static int QUEEN_CAPTURE = 59;
+	static int KING_MOVE = 60;
+	static int KING_CAPTURE = 61;
+	static int QUEEN_PROMOTION = 62;
+	static int QUEEN_PROMOTION_CAPTURE = 63;
+	static int ROOK_PROMOTION = 64;
+	static int ROOK_PROMOTION_CAPTURE = 65;
+	static int KNIGHT_PROMOTION = 66;
+	static int KNIGHT_PROMOTION_CAPTURE = 67;
+	static int BISHOP_PROMOTION = 68;
+	static int BISHOP_PROMOTION_CAPTURE = 69;
+	static int UNKNOW_MOVE = -50;
+
 	static String[] RANKS = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
 	static String[] FILES = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
 	static int WHITE = 100;
 	static int BLACK = -100;
 
 	static int EMPTY = 0;
-	static int CASTLE_QS = -1;
-	static int CASTLE_KS = 1;
+	static int CASTLE_QS = -10;
+	static int CASTLE_KS = 10;
 
 	static int WHITE_PAWN = 1;
 	static int WHITE_ROOK = 2;
@@ -102,6 +124,87 @@ public class PGNParser {
 			int f = p.square[1];
 			board[r][f] = p.code;
 		}
+	}
+
+	public static int getMoveType(String mv){
+
+		mv = mv.trim();
+		int len = mv.length();
+		boolean pawnMove = false;
+
+		for (String f:FILES){
+			if (mv.startsWith(f) && (!mv.contains("="))) {
+				if (mv.contains("x"))
+					return PAWN_CAPTURE;
+				else
+					return PAWN_PUSH;
+			}
+		}
+
+		if (mv.equals("O-O"))
+			return CASTLE_KS;
+		if (mv.equals("O-O-O"))
+			return CASTLE_QS;
+
+		if (mv.startsWith("R")){
+			if (mv.contains("x"))
+				return ROOK_CAPTURE;
+			else 
+				return ROOK_MOVE;
+		}
+		if (mv.startsWith("N")){
+			if (mv.contains("x"))
+				return KNIGHT_CAPTURE;
+			else 
+				return KNIGHT_MOVE;
+		}
+		if (mv.startsWith("B")){
+			if (mv.contains("x"))
+				return BISHOP_CAPTURE;
+			else 
+				return BISPHOP_MOVE;
+		}
+		if (mv.startsWith("Q")){
+			if (mv.contains("x"))
+				return QUEEN_CAPTURE;
+			else 
+				return QUEEN_MOVE;
+		}
+		if (mv.startsWith("K")){
+			if (mv.contains("x"))
+				return KING_CAPTURE;
+			else 
+				return KING_MOVE;
+		}
+
+		if (mv.endsWith("=Q") || mv.endsWith("=Q+")) {
+			if (mv.contains("x"))
+				return QUEEN_PROMOTION_CAPTURE;
+			else
+				return QUEEN_PROMOTION;
+		}
+			
+		if (mv.endsWith("=R") || mv.endsWith("=R+")){
+			if (mv.contains("x"))
+				return ROOK_PROMOTION_CAPTURE;
+			else
+				return ROOK_PROMOTION;
+		}
+			
+		if (mv.endsWith("=N") || mv.endsWith("=N+")){
+			if (mv.contains("x"))
+				return KNIGHT_PROMOTION_CAPTURE;
+			else
+				return KNIGHT_PROMOTION;
+		}
+			
+		if (mv.endsWith("=B") || mv.endsWith("=B+")){
+			if (mv.contains("x"))
+				return BISHOP_PROMOTION_CAPTURE;
+			else
+				return BISHOP_PROMOTION;
+		}
+		return UNKNOW_MOVE;
 	}
 
 	public static String codeToStr(int code) {
@@ -294,7 +397,14 @@ public class PGNParser {
 		for (Square s:sq)
 			System.out.println(s.toNotation());
 
-		
+		String[] moves = new String[]{"Nf3", "Nf6", "c4", "g6", "Nc3", "Bg7", "d4", "O-O", "g3", "c6", "Bg2", "d5", "b3", "dxc4",
+					"bxc4", "c5", "e3", "Nc6", "O-O", "Bf5", "Ne5", "cxd4", "Nxc6", "bxc6", "exd4", "Qb6",
+					"Ba3", "Qa6", "Qa4", "Qxa4", "Nxa4", "Rfd8", "Bxc6", "Rac8", "d5", "Bd3", "Bxe7", "Bxf1",
+					"Rxf1", "Ne4", "Bxd8", "Rxd8", "c5", "Bd4", "Rc1", "Nxf2", "Kg2", "Ng4", "d6", "Kg7",
+					"Bb5", "f5", "c6", "Rxd6", "c7", "Be3", "Rc2", "Bb6", "c8=Q", "Ne3+", "Kf3"};
+
+		for(String mv:moves)
+			System.out.println(getMoveType(mv));
 	}
 
 }
