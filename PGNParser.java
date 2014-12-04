@@ -394,8 +394,8 @@ public class PGNParser {
 		//List<Square> sq = getKnightAttackSquares(0, 1);
 		//List<Square> sq = getRookAttackSquares(4, 4);
 		List<Square> sq = getPawnAttackSquares(2, 3, WHITE);
-		for (Square s:sq)
-			System.out.println(s.toNotation());
+		// for (Square s:sq)
+		// 	System.out.println(s.toNotation());
 
 		String[] moves = new String[]{"Nf3", "Nf6", "c4", "g6", "Nc3", "Bg7", "d4", "O-O", "g3", "c6", "Bg2", "d5", "b3", "dxc4",
 					"bxc4", "c5", "e3", "Nc6", "O-O", "Bf5", "Ne5", "cxd4", "Nxc6", "bxc6", "exd4", "Qb6",
