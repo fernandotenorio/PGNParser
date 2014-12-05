@@ -40,7 +40,7 @@ class Square {
 }
 
 public class PGNParser {
-	
+
 	static int UNKNOW_MOVE = -50;
 
 	static String[] RANKS = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
@@ -372,7 +372,46 @@ public class PGNParser {
 		return squares;
 	}
 
-	public static void procMove(String mv, int[][] board, int color){
+	// square to: always last 2 chars? (if ignore = +)
+	public static int[] getRankFile(String mv){
+
+		String rankStr = mv.replaceAll("\\D+","");
+		int rank = -1;
+
+		if (rankStr.length() > 1) {
+			String[] tk = rankStr.split("");
+			rank = Integer.parseInt(tk[tk.length - 1]) - 1;
+		}
+		else
+			rank = Integer.parseInt(rankStr) - 1;
+
+		int file = -1;
+		int[] idxs = new int[]{rank, -1}; //rankTo, fileTo, fileFrom
+		String[] tokens = mv.trim().split("");
+
+		for (int i = tokens.length - 1; i >= 0; i--) {
+			for (int j = 0; j < FILES.length; j++)
+				if (FILES[j].equals(tokens[i])){
+					idxs[1] = j;
+					return idxs;
+				}
+		}
+		return null;
+	}
+
+	public static boolean isAmbigRank(String mv) {
+
+		String m = mv.replaceAll("\\D+","").trim();
+		return m.length() > 1;
+	}
+
+	public static boolean isAmbigFile(String mv) {
+
+		String m = mv.replaceAll("\\d+|[RNBQKx=+]+", "");
+		return m.length() > 1;
+	}
+
+	public void procMove(String mv, int color){
 
 		int[] moveInfo = getMoveInfo(mv);
 
@@ -400,7 +439,6 @@ public class PGNParser {
 		
 	}
 
-
 	public static void main(String[] args) {
 		PGNParser p = new PGNParser();
 		p.initPosition();
@@ -418,8 +456,27 @@ public class PGNParser {
 					"Rxf1", "Ne4", "Bxd8", "Rxd8", "c5", "Bd4", "Rc1", "Nxf2", "Kg2", "Ng4", "d6", "Kg7",
 					"Bb5", "f5", "c6", "Rxd6", "c7", "Be3", "Rc2", "Bb6", "c8=Q", "Ne3+", "Kf3"};
 
-		for(String mv:moves)
-			procMove(mv, null, 0);
+		for(String mv:moves){
+			//p.procMove(mv, 0);
+			if (mv.equals("O-O") || mv.equals("O-O-O"))
+				continue;
+			
+			int[] r = getRankFile(mv);
+			System.out.println(mv + ": " + r[0] + ", " + r[1] + ": " + isAmbigFile(mv));
+		}
+
+		String a = "Rfd8+12345RNB==++xx";
+		a = a.replaceAll("\\d+|[RNBQKx=+]+", "");
+		System.out.println(a);
+
+		
+
 	}
 
 }
+//r, f = rank, file to move
+//p[] = piece which moves given given color
+//for (piece if = p in color.pieces)
+//	m = get.moves(piece)
+	
+
