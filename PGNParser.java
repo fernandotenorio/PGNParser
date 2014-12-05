@@ -407,7 +407,7 @@ public class PGNParser {
 
 	public static boolean isAmbigFile(String mv) {
 
-		String m = mv.replaceAll("\\d+|[RNBQKx=+]+", "");
+		String m = mv.replaceAll("\\d+|[RNBQKx=+#]+", "");
 		return m.length() > 1;
 	}
 
@@ -465,18 +465,12 @@ public class PGNParser {
 			System.out.println(mv + ": " + r[0] + ", " + r[1] + ": " + isAmbigFile(mv));
 		}
 
-		String a = "Rfd8+12345RNB==++xx";
-		a = a.replaceAll("\\d+|[RNBQKx=+]+", "");
-		System.out.println(a);
-
-		
-
 	}
 
 }
 //r, f = rank, file to move
+//ambF = isAmbigFile
+//ambR = isAmbigRank
 //p[] = piece which moves given given color
 //for (piece if = p in color.pieces)
 //	m = get.moves(piece)
-	
-
