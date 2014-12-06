@@ -45,6 +45,9 @@ public class PGNParser {
 
 	static String[] RANKS = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
 	static String[] FILES = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
+	static String NAME_CODES[] = new String[]{null, "", "R", "N", "B", "Q", "K"};
+	static String FILE_STR = "abcdefgh";
+	static String RANK_STR = "12345678";
 	static int WHITE = 100;
 	static int BLACK = -100;
 
@@ -80,21 +83,23 @@ public class PGNParser {
 	private int white_castle;
 	private int black_castle;
 
-	private Piece[] white_pawns = new Piece[8];
-	private Piece[] white_rooks = new Piece[16];
-	private Piece[] white_knights = new Piece[16];
-	private Piece[] white_bishops = new Piece[16];
-	private Piece[] white_queens = new Piece[16];
-	private Piece white_king = new Piece(WHITE_KING, 0, 4, "K");
+	private List<Piece> white_pawns = new ArrayList<Piece>();
+	private List<Piece> white_rooks = new ArrayList<Piece>();
+	private List<Piece> white_knights = new ArrayList<Piece>();
+	private List<Piece> white_bishops = new ArrayList<Piece>();
+	private List<Piece> white_queens = new ArrayList<Piece>();
+	//private List<Piece> white_king = new Piece(WHITE_KING, 0, 4, "K");
+	private List<Piece> white_king = new ArrayList<Piece>();
 
-	private Piece[] black_pawns = new Piece[8];
-	private Piece[] black_rooks = new Piece[16];
-	private Piece[] black_knights = new Piece[16];
-	private Piece[] black_bishops = new Piece[16];
-	private Piece[] black_queens = new Piece[16];
-	private Piece black_king = new Piece(BLACK_KING, 7, 4, "K");
+	private List<Piece> black_pawns = new ArrayList<Piece>();
+	private List<Piece> black_rooks = new ArrayList<Piece>();
+	private List<Piece> black_knights = new ArrayList<Piece>();
+	private List<Piece> black_bishops = new ArrayList<Piece>();
+	private List<Piece> black_queens = new ArrayList<Piece>();
+	// private List<Piece> black_king = new Piece(BLACK_KING, 7, 4, "K");
+	private List<Piece> black_king = new ArrayList<Piece>();
 
-	private void addToBoard(Piece[] pieces){
+	private void addToBoard(List<Piece> pieces){
 
 		for (Piece p : pieces){
 			if (p != null)
@@ -163,28 +168,28 @@ public class PGNParser {
 				return new int[]{MOVE, WHITE_KING};
 		}
 
-		if (mv.endsWith("=Q") || mv.endsWith("=Q+")) {
+		if (mv.endsWith("=Q") || mv.endsWith("=Q+") || mv.endsWith("=Q#")) {
 			if (mv.contains("x"))
 				return new int[]{PROMOTION_CAPTURE, WHITE_QUEEN};
 			else
 				return new int[]{PROMOTION, WHITE_QUEEN};
 		}
 			
-		if (mv.endsWith("=R") || mv.endsWith("=R+")){
+		if (mv.endsWith("=R") || mv.endsWith("=R+") || mv.endsWith("=R#")){
 			if (mv.contains("x"))
 				return new int[]{PROMOTION_CAPTURE, WHITE_ROOK};
 			else
 				return new int[]{PROMOTION, WHITE_ROOK};
 		}
 			
-		if (mv.endsWith("=N") || mv.endsWith("=N+")){
+		if (mv.endsWith("=N") || mv.endsWith("=N+") || mv.endsWith("=N#")){
 			if (mv.contains("x"))
 				return new int[]{PROMOTION_CAPTURE, WHITE_KNIGHT};
 			else
 				return new int[]{PROMOTION, WHITE_KNIGHT};
 		}
 			
-		if (mv.endsWith("=B") || mv.endsWith("=B+")){
+		if (mv.endsWith("=B") || mv.endsWith("=B+") || mv.endsWith("=B#")){
 			if (mv.contains("x"))
 				return new int[]{PROMOTION_CAPTURE, WHITE_BISHOP};
 			else
@@ -195,20 +200,32 @@ public class PGNParser {
 
 	public static String codeToStr(int code) {
 
-		if (code == WHITE_PAWN || code == BLACK_PAWN)
+		if (code == WHITE_PAWN)
 			return "P";
-		else if (code == WHITE_ROOK || code == BLACK_ROOK)
+		else if (code == BLACK_PAWN)
+			return "p"; 			
+		else if (code == WHITE_ROOK)
 			return "R";
-		else if (code == WHITE_KNIGHT || code == BLACK_KNIGHT)
+		else if (code == BLACK_ROOK)
+			return "r";
+		else if (code == WHITE_KNIGHT)
 			return "N";
-		else if (code == WHITE_BISHOP || code == BLACK_BISHOP)
+		else if (code == BLACK_KNIGHT)
+			return "n";
+		else if (code == WHITE_BISHOP)
 			return "B";
-		else if (code == WHITE_QUEEN || code == BLACK_QUEEN)
+		else if (code == BLACK_BISHOP)
+			return "b";
+		else if (code == WHITE_QUEEN)
 			return "Q";
-		else if (code == WHITE_KING || code == BLACK_KING)
+		else if (code == BLACK_QUEEN)
+			return "q";
+		else if (code == WHITE_KING)
 			return "K";
+		else if (code == BLACK_KING)
+			return "k";
 		else if (code == 0)
-			return "+";
+			return ".";
 		else
 			return null;
 	}
@@ -226,25 +243,29 @@ public class PGNParser {
 
 		//white
 		for (int i = 0; i < 8; i++)
-			white_pawns[i] = new Piece(WHITE_PAWN, 1, i, "");
-		white_rooks[0] = new Piece(WHITE_ROOK, 0, 0, "R");
-		white_rooks[1] = new Piece(WHITE_ROOK, 0, 7, "R");
-		white_knights[0] = new Piece(WHITE_KNIGHT, 0, 1, "N");
-		white_knights[1] = new Piece(WHITE_KNIGHT, 0, 6, "N");
-		white_bishops[0] = new Piece(WHITE_BISHOP, 0, 2, "B");
-		white_bishops[1] = new Piece(WHITE_BISHOP, 0, 5, "B");
-		white_queens[0] = new Piece(WHITE_QUEEN, 0, 3, "Q");
+			white_pawns.add(new Piece(WHITE_PAWN, 1, i, ""));
+
+		white_king.add(new Piece(WHITE_KING, 0, 4, "k"));
+		white_rooks.add(new Piece(WHITE_ROOK, 0, 0, "R"));
+		white_rooks.add(new Piece(WHITE_ROOK, 0, 7, "R"));
+		white_knights.add(new Piece(WHITE_KNIGHT, 0, 1, "N"));
+		white_knights.add(new Piece(WHITE_KNIGHT, 0, 6, "N"));
+		white_bishops.add(new Piece(WHITE_BISHOP, 0, 2, "B"));
+		white_bishops.add(new Piece(WHITE_BISHOP, 0, 5, "B"));
+		white_queens.add(new Piece(WHITE_QUEEN, 0, 3, "Q"));
 
 		//black
 		for (int i = 0; i < 8; i++)
-			black_pawns[i] = new Piece(BLACK_PAWN, 6, i, "");
-		black_rooks[0] = new Piece(BLACK_ROOK, 7, 0, "R");
-		black_rooks[1] = new Piece(BLACK_ROOK, 7, 7, "R");
-		black_knights[0] = new Piece(BLACK_KNIGHT, 7, 1, "N");
-		black_knights[1] = new Piece(BLACK_KNIGHT, 7, 6, "N");
-		black_bishops[0] = new Piece(BLACK_BISHOP, 7, 2, "B");
-		black_bishops[1] = new Piece(BLACK_BISHOP, 7, 5, "B");
-		black_queens[0] = new Piece(BLACK_QUEEN, 7, 3, "Q");
+			black_pawns.add(new Piece(BLACK_PAWN, 6, i, ""));
+
+		black_king.add(new Piece(BLACK_KING, 7, 4, "K"));
+		black_rooks.add(new Piece(BLACK_ROOK, 7, 0, "R"));
+		black_rooks.add(new Piece(BLACK_ROOK, 7, 7, "R"));
+		black_knights.add(new Piece(BLACK_KNIGHT, 7, 1, "N"));
+		black_knights.add(new Piece(BLACK_KNIGHT, 7, 6, "N"));
+		black_bishops.add(new Piece(BLACK_BISHOP, 7, 2, "B"));
+		black_bishops.add(new Piece(BLACK_BISHOP, 7, 5, "B"));
+		black_queens.add(new Piece(BLACK_QUEEN, 7, 3, "Q"));
 
 		//board
 		addToBoard(white_pawns);
@@ -429,7 +450,7 @@ public class PGNParser {
 
 	public static boolean isAmbigRank(String mv) {
 
-		String m = mv.replaceAll("\\D+","").trim();
+		String m = mv.replaceAll("\\D+","");
 		return m.length() > 1;
 	}
 
@@ -439,7 +460,34 @@ public class PGNParser {
 		return m.length() > 1;
 	}
 
-	public Piece[] getPieces(int piece, int color){
+	public List<Square> getMovesForPiece(Piece piece, int color){
+
+		List<Square> moves = null;
+		int r = piece.square[0];
+		int f = piece.square[1];
+
+		if (piece.code == WHITE_PAWN || piece.code == BLACK_PAWN){
+			moves = getPawnMoveSquares(r, f, color);
+		}
+		else if (piece.code == WHITE_ROOK || piece.code == BLACK_ROOK){
+			moves = getRookMoveSquares(r, f, color);
+		}
+		else if (piece.code == WHITE_KNIGHT || piece.code == BLACK_KNIGHT){
+			moves = getKnightMoveSquares(r, f, color);
+		}
+		else if (piece.code == WHITE_BISHOP || piece.code == BLACK_BISHOP){
+			moves = getBishopMoveSquares(r, f, color);
+		}
+		else if (piece.code == WHITE_QUEEN || piece.code == BLACK_QUEEN){
+			moves = getQueenMoveSquares(r, f, color);
+		}
+		else
+			System.out.println("Unknow piece");
+
+		return moves;
+	}
+
+	public List<Piece> getPieces(int piece, int color){
 
 		if (piece == WHITE_PAWN) {
 
@@ -478,59 +526,228 @@ public class PGNParser {
 		}
 		else if (piece == WHITE_KING){
 			if (color == WHITE)
-				return new Piece[]{white_king};
+				return white_king;
 			else
-				return new Piece[]{black_king};
+				return black_king;
 		}
 		return null;
 	}
 
 	public void procMove(String mv, int color){
 
+		int opColor = color == WHITE ? BLACK : WHITE;
 		int[] moveInfo = getMoveInfo(mv);
-		if (color == BLACK)
-			moveInfo[1] *= -1;
+		//moveInfo[1] is always a white piece code
 
-		if (moveInfo[0] == CAPTURE) {
-			int pieceCode = moveInfo[1];
-		}
-		else if(moveInfo[0] == MOVE){
-			int pieceCode = moveInfo[1];
-			Piece[] pieces = getPieces(pieceCode, color);
+		if(moveInfo[0] == MOVE || moveInfo[0] == CAPTURE){
+			int pieceCode = moveInfo[1];			
+			List<Piece> pieces = getPieces(pieceCode, color);
 			int[] rankFile = getRankFile(mv);
 			int r = rankFile[0];
 			int f = rankFile[1];
 
-			//Somente uma peca deste tipo
-			if (pieces.length == 1) {
-				Piece p = pieces[0];				
-				board[p.square[0]][p.square[r]] = EMPTY;
-				board[r][f] = pieceCode;
-				p.square[0] = r;
-				p.square[1] = f;
+			if (moveInfo[0] == CAPTURE){
+				Piece toRemove = null;							
+				//using white piece code
+				int capPiece = board[r][f] > 0 ? board[r][f]: -board[r][f];
+
+				//En Passant
+				if (capPiece == EMPTY) {
+					List<Piece> pawns = color == WHITE ? white_pawns : black_pawns;
+					int pawnFile = FILE_STR.indexOf(mv.replaceAll("\\d+|[RNBQKx=+#]+", "").substring(0, 1));
+					int pawnRank = color == WHITE ? r - 1 : r + 1;
+
+					for (Piece pp : pawns) {
+						if (pp.square[0] == pawnRank && pp.square[1] == pawnFile){
+							board[pawnRank][pawnFile] = EMPTY;
+							board[r][f] = color == WHITE ? pieceCode : -pieceCode;
+							pp.square[0] = r;
+							pp.square[1] = f;
+						}
+					}
+					//remove opp pawn
+					List<Piece> opPieces = color == WHITE ? black_pawns : white_pawns;					
+					for (Piece pp : opPieces) {
+						if (pp.square[0] == pawnRank && pp.square[1] == f){
+							toRemove = pp;
+							break;
+						}
+					}
+					opPieces.remove(toRemove);
+					board[pawnRank][f] = EMPTY;
+					return;
+				}
+				else {
+					List<Piece> opPieces = getPieces(capPiece, opColor);
+					for (Piece op : opPieces) {
+						if (op.square[0] == r && op.square[1] == f) {
+							op.captured = true;
+							toRemove = op;
+							break;
+						}
+					}
+					opPieces.remove(toRemove);
+				}
 			}
-			else{
+
+			//Somente uma peca deste tipo
+			if (pieces.size() == 1) {
+				Piece p = pieces.get(0);				
+				board[p.square[0]][p.square[1]] = EMPTY;
+				//board[r][f] = pieceCode;
+				board[r][f] = color == WHITE ? pieceCode : -pieceCode;
+				p.square[0] = r;
+				p.square[1] = f;				
+			}
+			else {
 				boolean ambF = isAmbigFile(mv);
 				boolean ambR = isAmbigRank(mv);
 				//somente uma das pecas pode fazer o lance
 				if (!(ambF || ambR)){
+					outer:
 					for (Piece p : pieces){
-						
+						List<Square> moves = getMovesForPiece(p, color);
+						for (Square m : moves){
+							if (m.r == r && m.f == f){
+								board[p.square[0]][p.square[1]] = EMPTY;
+								//board[r][f] = pieceCode;
+								board[r][f] = color == WHITE ? pieceCode : -pieceCode;
+								p.square[0] = r;
+								p.square[1] = f;
+								break outer;
+							}
+						}
 					}
 				}
+				else {
+					int decideIdx = -1;
+					int decideVal = -1;
+					if (ambF) {
+						decideIdx = 1; //decide by file
+						decideVal = FILE_STR.indexOf(mv.replaceAll("\\d+|[RNBQKx=+#]+", "").substring(0, 1));
+					}
+					else{
+						decideIdx = 0;
+						decideVal = RANK_STR.indexOf(mv.replaceAll("\\D+","").substring(0, 1));
+					}
+					outer:
+					for (Piece p : pieces){
+						List<Square> moves = getMovesForPiece(p, color);
+						for (Square m : moves){
+							if (m.r == r && m.f == f && p.square[decideIdx] == decideVal){
+								board[p.square[0]][p.square[1]] = EMPTY;
+								// board[r][f] = pieceCode;
+								board[r][f] = color == WHITE ? pieceCode : -pieceCode;
+								p.square[0] = r;
+								p.square[1] = f;
+								break outer;
+							}
+						}
+					}
+				}				
 			}
 		}
 		else if (moveInfo[0] == CASTLE_KS){
-			
+			int rk = color == WHITE ? 0 : 7;
+			Piece king = color == WHITE ? white_king.get(0) : black_king.get(0);
+			List<Piece> rooks = color == WHITE ? white_rooks : black_rooks;
+
+			board[rk][4] = EMPTY;
+			board[rk][7] = EMPTY;
+			board[rk][5] = color == WHITE ? WHITE_ROOK : BLACK_ROOK;
+			board[rk][6] = color == WHITE ? WHITE_KING : BLACK_KING;
+			king.square[1] = 6;
+
+			for (Piece rook : rooks){
+				if (rook.square[0] == rk && rook.square[1] == 7){
+					rook.square[1] = 5;
+					break;
+				}
+			}
 		}
 		else if (moveInfo[0] == CASTLE_QS){
-			
+			int rk = color == WHITE ? 0 : 7;
+			Piece king = color == WHITE ? white_king.get(0) : black_king.get(0);
+			List<Piece> rooks = color == WHITE ? white_rooks : black_rooks;
+
+			board[rk][4] = EMPTY;
+			board[rk][0] = EMPTY;
+			board[rk][3] = color == WHITE ? WHITE_ROOK : BLACK_ROOK;
+			board[rk][2] = color == WHITE ? WHITE_KING : BLACK_KING;
+			king.square[1] = 2;
+
+			for (Piece rook : rooks){
+				if (rook.square[0] == rk && rook.square[1] == 0){
+					rook.square[1] = 3;
+					break;
+				}
+			}
 		}
-		else if (moveInfo[0] == PROMOTION_CAPTURE){
+		else if (moveInfo[0] == PROMOTION_CAPTURE){			
 			int promoteTo = moveInfo[1];
+			List<Piece> pieces = color == WHITE ? white_pawns : black_pawns;
+			int[] rankFile = getRankFile(mv);
+			int r = rankFile[0];
+			int f = rankFile[1];
+			int decideIdx = 1;
+			int decideVal = FILE_STR.indexOf(mv.replaceAll("\\d+|[RNBQKx=+#]+", "").substring(0, 1));
+			
+			Piece toRemove = null;
+			outer:
+			for (Piece p : pieces) {
+				List<Square> moves = getMovesForPiece(p, color);
+				for (Square m : moves) {
+					if (m.r == r && m.f == f && p.square[decideIdx] == decideVal){
+						board[p.square[0]][p.square[1]] = EMPTY;
+						board[r][f] = color == WHITE ? promoteTo : -promoteTo;						
+						toRemove = p;						
+						break outer;
+					}
+				}
+			}
+			//remove promoted pawn add promoted piece
+			pieces.remove(toRemove);					
+			List<Piece> promoPieces = getPieces(promoteTo, color);
+			promoPieces.add(new Piece(color == WHITE ? promoteTo : -promoteTo, r, f, NAME_CODES[promoteTo]));
+
+			//remove captured piece
+			int capPiece = board[r][f] > 0 ? board[r][f]: -board[r][f];
+			List<Piece> opPieces = getPieces(capPiece, opColor);
+			toRemove = null;
+			for (Piece op : opPieces) {
+				if (op.square[0] == r && op.square[1] == f) {
+					op.captured = true;
+					toRemove = op;
+					break;
+				}
+			}
+			opPieces.remove(toRemove);
 		}
 		else if (moveInfo[0] == PROMOTION){
 			int promoteTo = moveInfo[1];	
+			List<Piece> pieces = color == WHITE ? white_pawns : black_pawns;
+			int[] rankFile = getRankFile(mv);
+			int r = rankFile[0];
+			int f = rankFile[1];
+			Piece toRemove = null;
+
+			outer:
+			for (Piece p : pieces) {
+				List<Square> moves = getMovesForPiece(p, color);
+				for (Square m : moves) {
+					if (m.r == r && m.f == f){
+						board[p.square[0]][p.square[1]] = EMPTY;
+						board[r][f] = color == WHITE ? promoteTo : -promoteTo;	
+						toRemove = p;						
+						break outer;
+					}
+				}
+			}
+
+			//remove promoted pawn add promoted piece
+			pieces.remove(toRemove);
+			List<Piece> promoPieces = getPieces(promoteTo, color);
+			promoPieces.add(new Piece(color == WHITE ? promoteTo : -promoteTo, r, f, NAME_CODES[promoteTo]));
 		}
 		else {
 			System.out.println("Invalid move type: " + moveInfo[0]);
@@ -542,64 +759,40 @@ public class PGNParser {
 
 		PGNParser  game = new PGNParser();
 		game.initPosition();
-		String[] pgn = new String[]{"Nf3", "Nf6", "c4", "g6", "Nc3", "Bg7", "d4", "O-O", "g3", "c6", "Bg2", "d5", "b3", "dxc4",
-					"bxc4", "c5", "e3", "Nc6", "O-O", "Bf5", "Ne5", "cxd4", "Nxc6", "bxc6", "exd4", "Qb6",
-					"Ba3", "Qa6", "Qa4", "Qxa4", "Nxa4", "Rfd8", "Bxc6", "Rac8", "d5", "Bd3", "Bxe7", "Bxf1",
-					"Rxf1", "Ne4", "Bxd8", "Rxd8", "c5", "Bd4", "Rc1", "Nxf2", "Kg2", "Ng4", "d6", "Kg7",
-					"Bb5", "f5", "c6", "Rxd6", "c7", "Be3", "Rc2", "Bb6", "c8=Q", "Ne3+", "Kf3"};
 
+		String[] pgn = new String[]{"Nf3", "Nf6", "c4", "c5", "b3", "g6", "Bb2", "Bg7", "e3", "O-O", "Be2", "b6",
+		"O-O", "Bb7", "Nc3", "Nc6", "Qc2", "Rc8", "Rac1", "d5", "Nxd5", "Nxd5", "Bxg7", "Nf4", "exf4", "Kxg7", 
+		"Qc3+", "Kg8", "Rcd1", "Qd6", "d4", "cxd4", "Nxd4", "Qxf4", "Bf3", "Qf6", "Nb5", "Qxc3"};
+
+		int side = WHITE;		
+		// for (String m : pgn) {			
+		// 	game.procMove(m, side );
+		// 	side *= -1;			
+			
+		// }
 		
-		//p.procMove("Nf3", WHITE);		
-		game.board[6][3] = EMPTY;
-		game.printBoard();
+		// game.printBoard();
 
-		Piece[] pieces = game.black_pawns;
-		int m = 0;
-		for (Piece p : pieces){
-			if (p == null)
-				break;
-			List<Square> moves = game.getPawnMoveSquares(p.square[0], p.square[1], BLACK);
-			m += moves.size();
+		String x = "1. e4 e6 2. d4 d5 3. e5 c5 4. c3 cxd4 5. cxd4 Bb4+ 6. Nc3 Nc6 "+
+"7. Nf3 Nge7 8. Bd3 O-O 9. Bxh7+ Kxh7 10. Ng5+ Kg6 11. h4 Nxd4 "+
+"12. Qg4 f5 13. h5+ Kh6 14. Nxe6+ g5 15. hxg6# 1-0";
+		String[] t = x.split(" ");
+		int k = 0;
+
+		for (int i = 0; i < t.length - 1; i++) {
+			if (i % 3 != 0) {
+				if (side == WHITE)
+					System.out.println(k/2 + 1 + ". " + t[i]);				
+				else
+					System.out.println(k/2 + 1 + ".. " + t[i]);
+				game.procMove(t[i], side);
+				side *= -1;	
+				k++;
+				game.printBoard();
+				System.out.println();
+			}
 		}
-		System.out.println("m = " + m);
 		
-		pieces = game.black_rooks;
-		for (Piece p : pieces){
-			if (p == null)
-				break;
-			List<Square> moves = game.getRookMoveSquares(p.square[0], p.square[1], BLACK);					
-			m += moves.size();
-		}
-		System.out.println("m = " + m);
-
-		pieces = game.black_knights;
-		for (Piece p : pieces){
-			if (p == null)
-				break;
-			List<Square> moves = game.getKnightMoveSquares(p.square[0], p.square[1], BLACK);
-			m += moves.size();
-		}
-		System.out.println("m = " + m);
-		
-		pieces = game.black_bishops;
-		for (Piece p : pieces){
-			if (p == null)
-				break;
-			List<Square> moves = game.getBishopMoveSquares(p.square[0], p.square[1], BLACK);
-			m += moves.size();
-		}
-		System.out.println("m = " + m);
-		
-		pieces = game.black_queens;
-		for (Piece p : pieces){
-			if (p == null)
-				break;	
-			List<Square> moves = game.getQueenMoveSquares(p.square[0], p.square[1], BLACK);
-			m += moves.size();
-		}
-
-		System.out.println("m = " + m);
-
 	}
 
 }
