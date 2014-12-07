@@ -138,9 +138,9 @@ public class PGNParser {
 			}
 		}
 
-		if (mv.equals("O-O"))
+		if (mv.equals("O-O") || mv.equals("O-O+"))
 			return new int[]{CASTLE_KS, 0};
-		if (mv.equals("O-O-O"))
+		if (mv.equals("O-O-O") || mv.equals("O-O-O+"))
 			return new int[]{CASTLE_QS, 0};
 
 		if (mv.startsWith("R")){
@@ -567,8 +567,8 @@ public class PGNParser {
 
 		int opColor = color == WHITE ? BLACK : WHITE;
 		int[] moveInfo = getMoveInfo(mv);
+		
 		//moveInfo[1] is always a white piece code
-
 		if(moveInfo[0] == MOVE || moveInfo[0] == CAPTURE){
 			int pieceCode = moveInfo[1];			
 			List<Piece> pieces = getPieces(pieceCode, color);
@@ -603,7 +603,7 @@ public class PGNParser {
 							break;
 						}
 					}
-					opPieces.remove(toRemove);
+					opPieces.remove(toRemove);					
 					board[pawnRank][f] = EMPTY;
 					return;
 				}
@@ -621,26 +621,26 @@ public class PGNParser {
 			}
 
 			//Somente uma peca deste tipo
-			if (pieces.size() == 1) {
+			if (pieces.size() == 1) {				
 				Piece p = pieces.get(0);				
-				board[p.square[0]][p.square[1]] = EMPTY;
-				//board[r][f] = pieceCode;
+				board[p.square[0]][p.square[1]] = EMPTY;				
 				board[r][f] = color == WHITE ? pieceCode : -pieceCode;
 				p.square[0] = r;
 				p.square[1] = f;				
 			}
 			else {
+				//Nem sempre lance ambiguo vem discriminado: ex, cav. pinned c6, cav g8, move Ne7
 				boolean ambF = isAmbigFile(mv);
 				boolean ambR = isAmbigRank(mv);
-				//somente uma das pecas pode fazer o lance
+
+				//somente uma das pecas pode fazer o lance (ie, outra esta pinned ou longe)
 				if (!(ambF || ambR)){
 					outer:
 					for (Piece p : pieces){
 						List<Square> moves = getMovesForPiece(p, color);
 						for (Square m : moves){
-							if (m.r == r && m.f == f){
-								board[p.square[0]][p.square[1]] = EMPTY;
-								//board[r][f] = pieceCode;
+							if (m.r == r && m.f == f){ // AND not p.isPinned()
+								board[p.square[0]][p.square[1]] = EMPTY;								
 								board[r][f] = color == WHITE ? pieceCode : -pieceCode;
 								p.square[0] = r;
 								p.square[1] = f;
@@ -665,8 +665,7 @@ public class PGNParser {
 						List<Square> moves = getMovesForPiece(p, color);
 						for (Square m : moves){
 							if (m.r == r && m.f == f && p.square[decideIdx] == decideVal){
-								board[p.square[0]][p.square[1]] = EMPTY;
-								// board[r][f] = pieceCode;
+								board[p.square[0]][p.square[1]] = EMPTY;								
 								board[r][f] = color == WHITE ? pieceCode : -pieceCode;
 								p.square[0] = r;
 								p.square[1] = f;
@@ -791,17 +790,13 @@ public class PGNParser {
 		int side = WHITE;		
 
 		//digit. move1 move2 digit. move1 move2 ...
-		String x = "1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Qxd4 Nc6 5. Bb5 Bd7 6. Bxc6 Bxc6 7. Nc3 "+
-			"Nf6 8. Bg5 e5 9. Qd2 Be7 10. Bxf6 Bxf6 11. Nd5 Be7 12. O-O-O Bxd5 13. Qxd5 " +
-			"Qc7 14. Rd3 O-O 15. Rc3 Qb6 16. Rf1 Rac8 17. Rb3 Qa6 18. Rd3 Rc5 19. Qb3 "+
-			"Rfc8 20. Ne1 d5 21. f3 Rb5 22. Qxb5 Qxb5 23. exd5 Bg5+ 24. Kb1 Rd8 25. b3 "+
-			"Rxd5 26. c4 Rxd3 27. cxb5 Rd1+ 28. Kc2 Rd2+ 29. Kb1 Kf8 30. a4 Ke7 31. h3 "+
-			"Rd1+ 32. Kc2 Rc1+ 33. Kd3 Bh4 34. Ke2 Rxe1+ 35. Rxe1 Bxe1 36. Kxe1 Kd6 37. "+
-			"Kd2 Kd5 38. Kd3 h5 39. g4 hxg4 40. hxg4 g6 41. g5 e4+ 42. fxe4+ Ke5 43. Ke3 "+
-			"f6 44. gxf6 Kxf6 45. Kf4 b6 46. b4 g5+ 47. Ke3 Ke5 48. a5 g4 49. axb6 axb6 "+
-			"50. Kd3 g3 51. Ke3 g2 52. Kf2 Kxe4 53. Kxg2 Kd3 54. Kf2 Kc3 55. Ke2 Kxb4 "+
-			"56. Kd2 Kxb5 57. Kc1 Kb4 58. Kb2 Kc4 59. Kc2 b5 60. Kb2 b4 61. Kc2 b3+ 62. "+
-			"Kb2 Kb4 63. Kb1 b2 64. Kxb2 1/2-1/2";
+		String x = "1. d4 d5 2. c4 dxc4 3. e4 e5 4. Nf3 exd4 5. Bxc4 Bb4+ 6. Bd2 Bxd2+ 7. Nbxd2 "+
+			"Nc6 8. O-O Qf6 9. Bb5 Ne7 10. e5 Qf4 11. g3 Qh6 12. Nxd4 Bh3 13. Re1 O-O-O "+
+			"14. N2f3 Nxd4 15. Nxd4 Qb6 16. Qh5 Rxd4 17. Qxh3+ Kb8 18. Qf1 Ng6 19. b3 "+
+			"Rd2 20. Re2 Rhd8 21. Bc4 Qc5 22. Rae1 R2d7 23. e6 fxe6 24. Rxe6 a6 25. Re8 "+
+			"Ka7 26. Rxd8 Rxd8 27. Qe2 Qa5 28. Qe3+ Kb8 29. a4 Qf5 30. Qe4 Qf6 31. Qe3 "+
+			"Qc6 32. Bd3 Rd6 33. Qe8+ Ka7 34. Qxc6 Rxc6 35. Bc4 Rc5 36. f4 b5 37. axb5 "+
+			"axb5 38. Bg8 h6 39. Re6 Nf8 40. Re7 g5 41. Rf7 Ne6 42. Rd7 Nf8 43. Rf7 Ne6 1/2-1/2";
 
 		x = x.replaceAll("\\d+\\.\\s*", "").replaceAll("\\s*\\d-\\d", "").replaceAll("\\d\\/\\/\\d", "");
 		System.out.println(x);

@@ -30,8 +30,12 @@ public class PGNStats{
 			//white
 			for (List<Piece> pieceList: whitePieces){
 				for (Piece p : pieceList){
-					List<Square> moves = parser.getMovesForPiece(p, PGNParser.WHITE);
+					List<Square> moves = parser.getMovesForPiece(p, PGNParser.WHITE);					
 					mWhite += moves.size();
+
+					if (moves.size() == 0)
+						continue;
+
 					for (Square sq : moves) {
 						if (sq.isCentral())
 							cWhite++;
@@ -44,6 +48,10 @@ public class PGNStats{
 				for (Piece p : pieceList){
 					List<Square> moves = parser.getMovesForPiece(p, PGNParser.BLACK);
 					mBlack += moves.size();
+
+					if (moves.size() == 0)
+						continue;
+					
 					for (Square sq : moves) {
 						if (sq.isCentral())
 							cBlack++;
