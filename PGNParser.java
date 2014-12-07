@@ -34,6 +34,10 @@ class Square {
 		return r == sq.r && f == sq.f;
 	}
 
+	public boolean isCentral(){
+		return (r == 3 && f == 3) || (r == 3 && f == 4) || (r == 4 && f == 3) || (r == 4 && f == 4);
+	}
+
 	public String toNotation() {
 		return PGNParser.FILES[f] + PGNParser.RANKS[r];
 	}
@@ -83,21 +87,23 @@ public class PGNParser {
 	private int white_castle;
 	private int black_castle;
 
-	private List<Piece> white_pawns = new ArrayList<Piece>();
-	private List<Piece> white_rooks = new ArrayList<Piece>();
-	private List<Piece> white_knights = new ArrayList<Piece>();
-	private List<Piece> white_bishops = new ArrayList<Piece>();
-	private List<Piece> white_queens = new ArrayList<Piece>();
-	//private List<Piece> white_king = new Piece(WHITE_KING, 0, 4, "K");
-	private List<Piece> white_king = new ArrayList<Piece>();
+	List<Piece> white_pawns = new ArrayList<Piece>();
+ 	List<Piece> white_rooks = new ArrayList<Piece>();
+	List<Piece> white_knights = new ArrayList<Piece>();
+	List<Piece> white_bishops = new ArrayList<Piece>();
+	List<Piece> white_queens = new ArrayList<Piece>();
+	List<Piece> white_king = new ArrayList<Piece>();
 
-	private List<Piece> black_pawns = new ArrayList<Piece>();
-	private List<Piece> black_rooks = new ArrayList<Piece>();
-	private List<Piece> black_knights = new ArrayList<Piece>();
-	private List<Piece> black_bishops = new ArrayList<Piece>();
-	private List<Piece> black_queens = new ArrayList<Piece>();
-	// private List<Piece> black_king = new Piece(BLACK_KING, 7, 4, "K");
-	private List<Piece> black_king = new ArrayList<Piece>();
+	List<Piece> black_pawns = new ArrayList<Piece>();
+	List<Piece> black_rooks = new ArrayList<Piece>();
+	List<Piece> black_knights = new ArrayList<Piece>();
+	List<Piece> black_bishops = new ArrayList<Piece>();
+	List<Piece> black_queens = new ArrayList<Piece>();
+	List<Piece> black_king = new ArrayList<Piece>();
+
+	public PGNParser(){
+		initPosition();
+	}
 
 	private void addToBoard(List<Piece> pieces){
 
@@ -533,6 +539,30 @@ public class PGNParser {
 		return null;
 	}
 
+	public List<List<Piece>> getBlackPieces(){
+
+		List<List<Piece>> blackPieces = new ArrayList<List<Piece>>();
+		blackPieces.add(black_pawns);
+		blackPieces.add(black_knights);
+		blackPieces.add(black_rooks);
+		blackPieces.add(black_bishops);
+		blackPieces.add(black_queens);
+
+		return blackPieces;
+	}
+
+	public List<List<Piece>> getWhitePieces(){
+
+		List<List<Piece>> whitePieces = new ArrayList<List<Piece>>();
+		whitePieces.add(white_pawns);
+		whitePieces.add(white_knights);
+		whitePieces.add(white_rooks);
+		whitePieces.add(white_bishops);
+		whitePieces.add(white_queens);
+
+		return whitePieces;
+	}
+
 	public void procMove(String mv, int color){
 
 		int opColor = color == WHITE ? BLACK : WHITE;
@@ -757,24 +787,24 @@ public class PGNParser {
 
 	public static void main(String[] args) {
 
-		PGNParser  game = new PGNParser();
-		game.initPosition();
+		PGNParser  game = new PGNParser();		
 		int side = WHITE;		
 
 		//digit. move1 move2 digit. move1 move2 ...
-		String x = "1. d4 Nf6 2. c4 g6 3. g3 Bg7 4. Bg2 O-O 5. Nf3 c6 6. O-O d5 7. cxd5 cxd5 8." +
-					"Nc3 Ne4 9. Qb3 Nxc3 10. Qxc3 b6 11. Bf4 Bb7 12. Rac1 Na6 13. Qd2 f6 14. b4 " +
-					"Rc8 15. Rxc8 Qxc8 16. b5 Nb8 17. Rc1 Qf5 18. Nh4 Qe6 19. Bxb8 Rxb8 20. Qf4 " +
-					"Qd6 21. Qxd6 exd6 22. Rc7 Kh8 23. e3 a6 24. Bf1 axb5 25. Bxb5 Bc8 26. a4 g5 " +
-					"27. Nf3 Bf5 28. Kf1 Rc8 29. Rxc8+ Bxc8 30. Bc6 h6 31. Ke1 Bf8 32. Kd2 Be7 " +
-					"33. Ne1 Kg7 34. Nd3 Ba6 35. Nb4 Bc4 36. Kc3 f5 37. Bxd5 Bf1 38. Bc6 Bd8 39." +
-					"Bb5 Bg2 40. Kc4 f4 41. exf4 gxf4 42. Bc6 d5+ 43. Kc3 fxg3 44. hxg3 h5 45." +
-					"Bxd5 Bf1 46. Bc6 h4 47. gxh4 Bxh4 48. f3 Be1+ 49. Kb3 Bf2 50. d5 Bc5 51." +
-					"Kc3 Kf6 52. Bb5 Bg2 53. Nd3 Bd6 54. Ne1 Bh3 55. Kd3 Ke5 56. Bc6 Bf1+ 57." +
-					"Ke3 Bc5+ 58. Kd2 Bb4+ 59. Kd1 Bd6 60. Kc2 Kf4 61. Nd3+ Bxd3+ 62. Kxd3 Kxf3 " +
-					"63. Kc4 Kf4 64. Kb5 Ke5 65. Kxb6 Bb4 66. a5 Kd6 67. a6 1-0";
+		String x = "1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Qxd4 Nc6 5. Bb5 Bd7 6. Bxc6 Bxc6 7. Nc3 "+
+			"Nf6 8. Bg5 e5 9. Qd2 Be7 10. Bxf6 Bxf6 11. Nd5 Be7 12. O-O-O Bxd5 13. Qxd5 " +
+			"Qc7 14. Rd3 O-O 15. Rc3 Qb6 16. Rf1 Rac8 17. Rb3 Qa6 18. Rd3 Rc5 19. Qb3 "+
+			"Rfc8 20. Ne1 d5 21. f3 Rb5 22. Qxb5 Qxb5 23. exd5 Bg5+ 24. Kb1 Rd8 25. b3 "+
+			"Rxd5 26. c4 Rxd3 27. cxb5 Rd1+ 28. Kc2 Rd2+ 29. Kb1 Kf8 30. a4 Ke7 31. h3 "+
+			"Rd1+ 32. Kc2 Rc1+ 33. Kd3 Bh4 34. Ke2 Rxe1+ 35. Rxe1 Bxe1 36. Kxe1 Kd6 37. "+
+			"Kd2 Kd5 38. Kd3 h5 39. g4 hxg4 40. hxg4 g6 41. g5 e4+ 42. fxe4+ Ke5 43. Ke3 "+
+			"f6 44. gxf6 Kxf6 45. Kf4 b6 46. b4 g5+ 47. Ke3 Ke5 48. a5 g4 49. axb6 axb6 "+
+			"50. Kd3 g3 51. Ke3 g2 52. Kf2 Kxe4 53. Kxg2 Kd3 54. Kf2 Kc3 55. Ke2 Kxb4 "+
+			"56. Kd2 Kxb5 57. Kc1 Kb4 58. Kb2 Kc4 59. Kc2 b5 60. Kb2 b4 61. Kc2 b3+ 62. "+
+			"Kb2 Kb4 63. Kb1 b2 64. Kxb2 1/2-1/2";
 
-		x = x.replaceAll("\\d+\\.\\s*", "").replaceAll("\\s*\\d-\\d", "");
+		x = x.replaceAll("\\d+\\.\\s*", "").replaceAll("\\s*\\d-\\d", "").replaceAll("\\d\\/\\/\\d", "");
+		System.out.println(x);
 		String[] pgn = x.split(" ");
 		int k = 0;
 
@@ -789,15 +819,7 @@ public class PGNParser {
 			k++;
 			game.printBoard();
 			System.out.println();
-			
 		}
 		
 	}
-
 }
-//r, f = rank, file to move
-//ambF = isAmbigFile
-//ambR = isAmbigRank
-//p[] = piece which moves given given color
-//for (piece if = p in color.pieces)
-//	m = get.moves(piece)
