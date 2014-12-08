@@ -332,6 +332,85 @@ public class PGNParser {
 		return squares;
 	}
 
+	public boolean isPinned(Piece p, Square mv, int color){
+
+		if (p.code == WHITE_KING || p.code == BLACK_KING)
+			return false;
+
+		int rTo = mv.r;
+		int fTo = mv.f;
+		int previousTo = board[rTo][fTo];
+
+		/* Simulate move */
+		int r = p.square[0];
+		int f = p.square[1];
+		board[rTo][fTo] = p.code;
+		board[r][f] = EMPTY;
+
+		List<Piece> bishops = color == WHITE ? black_bishops : white_bishops;
+		List<Piece> rooks = color == WHITE ? black_rooks : white_rooks;
+		List<Piece> queens = color == WHITE ? black_queens : white_queens;
+
+		int attacker = color == WHITE ? BLACK : WHITE;
+		int king = color == WHITE ? WHITE_KING : BLACK_KING;
+		List<Piece> listPin = getPieces(color == WHITE ? p.code : -p.code, color);
+		board[r][f] = EMPTY;
+		
+		boolean online = false;
+		boolean check = false;
+
+		for (Piece b : bishops){
+			List<Square> att = getBishopAttackSquares(b.square[0], b.square[1], attacker);
+			for (Square s : att){
+				if (board[s.r][s.f] == king)
+					check = true;
+				if (s.r == r && s.f == f)
+					online = true;
+			}
+		}
+		if (check && online) {
+			board[r][f] = p.code;
+			board[rTo][fTo] = previousTo;
+			return true;
+		}
+
+		online = false;
+		check = false;
+		for (Piece rk : rooks){
+			List<Square> att = getRookAttackSquares(rk.square[0], rk.square[1], attacker);
+			for (Square s : att){
+				if (board[s.r][s.f] == king)
+					check = true;
+				if (s.r == r && s.f == f)
+					online = true;
+			}
+		}
+		if (check && online) {
+			board[r][f] = p.code;
+			board[rTo][fTo] = previousTo;
+			return true;
+		}
+
+		online = false;
+		check = false;
+		for (Piece q : queens){
+			List<Square> att = getQueenAttackSquares(q.square[0], q.square[1], attacker);
+			for (Square s : att){
+				if (board[s.r][s.f] == king)
+					check = true;
+				if (s.r == r && s.f == f)
+					online = true;
+			}
+		}
+
+		board[r][f] = p.code;
+		board[rTo][fTo] = previousTo;
+		if (check && online) {
+			return true;
+		}
+		return false;
+	}
+
 	public List<Square> getKnightMoveSquares(int r, int f, int color){
 
 		List<Square> squares = new ArrayList<Square>();
@@ -360,6 +439,53 @@ public class PGNParser {
 		}
 
 		return squares;
+	}
+
+	
+	public List<Square> getDirectionAttackSquares(int r, int f, int color, int[][] direction){
+
+		List<Square> squares = new ArrayList<Square>();
+		int opKing = color == WHITE ? BLACK_KING : WHITE_KING;
+		int opColor = color == WHITE ? BLACK : WHITE;
+
+		for (int d = 0; d < direction.length; d++){
+			int[] dir = direction[d];
+
+			int dy = dir[0];
+			int dx = dir[1];
+			int i = 1;
+			while (r + i*dy >= 0 && r + i*dy < 8 && f + i*dx >= 0 && f + i*dx < 8) {
+				int rr = r +i*dy;
+				int ff = f + i*dx;
+				int sq = getColor(rr, ff);
+				
+				if (sq == EMPTY){
+					squares.add(new Square(rr, ff));
+				}
+				else{
+					squares.add(new Square(rr, ff));
+					break;
+				}
+				i++;
+			}
+		}		
+		return squares;
+	}
+
+	public List<Square> getBishopAttackSquares(int r, int f, int color){
+		return getDirectionAttackSquares(r, f, color, BISHOP_DIRS);
+	}
+
+	public List<Square> getRookAttackSquares(int r, int f, int color){
+		return getDirectionAttackSquares(r, f, color, ROOK_DIRS);
+	}
+
+	public List<Square> getQueenAttackSquares(int r, int f, int color){
+		List<Square> bishopAtt = getBishopAttackSquares(r, f, color);
+		List<Square> rookAtt = getRookAttackSquares(r, f, color);
+		rookAtt.addAll(bishopAtt);
+
+		return rookAtt;
 	}
 
 	public List<Square> getRookMoveSquares(int r, int f, int color){
@@ -603,7 +729,7 @@ public class PGNParser {
 							break;
 						}
 					}
-					opPieces.remove(toRemove);					
+					opPieces.remove(toRemove);
 					board[pawnRank][f] = EMPTY;
 					return;
 				}
@@ -639,7 +765,8 @@ public class PGNParser {
 					for (Piece p : pieces){
 						List<Square> moves = getMovesForPiece(p, color);
 						for (Square m : moves){
-							if (m.r == r && m.f == f){ // AND not p.isPinned()
+							
+							if (m.r == r && m.f == f &&(!isPinned(p, m, color))) {
 								board[p.square[0]][p.square[1]] = EMPTY;								
 								board[r][f] = color == WHITE ? pieceCode : -pieceCode;
 								p.square[0] = r;
@@ -789,17 +916,16 @@ public class PGNParser {
 		PGNParser  game = new PGNParser();		
 		int side = WHITE;		
 
-		//digit. move1 move2 digit. move1 move2 ...
-		String x = "1. d4 d5 2. c4 dxc4 3. e4 e5 4. Nf3 exd4 5. Bxc4 Bb4+ 6. Bd2 Bxd2+ 7. Nbxd2 "+
-			"Nc6 8. O-O Qf6 9. Bb5 Ne7 10. e5 Qf4 11. g3 Qh6 12. Nxd4 Bh3 13. Re1 O-O-O "+
-			"14. N2f3 Nxd4 15. Nxd4 Qb6 16. Qh5 Rxd4 17. Qxh3+ Kb8 18. Qf1 Ng6 19. b3 "+
-			"Rd2 20. Re2 Rhd8 21. Bc4 Qc5 22. Rae1 R2d7 23. e6 fxe6 24. Rxe6 a6 25. Re8 "+
-			"Ka7 26. Rxd8 Rxd8 27. Qe2 Qa5 28. Qe3+ Kb8 29. a4 Qf5 30. Qe4 Qf6 31. Qe3 "+
-			"Qc6 32. Bd3 Rd6 33. Qe8+ Ka7 34. Qxc6 Rxc6 35. Bc4 Rc5 36. f4 b5 37. axb5 "+
-			"axb5 38. Bg8 h6 39. Re6 Nf8 40. Re7 g5 41. Rf7 Ne6 42. Rd7 Nf8 43. Rf7 Ne6 1/2-1/2";
+		// digit. move1 move2 digit. move1 move2 ...
+		String x = "1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. d4 Nf6 5. Nf3 Bg4 6. h3 Bxf3 7. Qxf3 c6 "+
+"8. Be3 e6 9. Bd3 Nbd7 10. O-O Bd6 11. Ne4 Nxe4 12. Bxe4 Nf6 13. Bd3 Nd5 14. "+
+"Bd2 Qf6 15. Qxf6 gxf6 16. Be4 f5 17. Bf3 O-O-O 18. Rfd1 Be7 19. c4 Nb6 20. "+
+"Ba5 Rd7 21. Bxb6 axb6 22. d5 cxd5 23. cxd5 e5 24. Rac1+ Kb8 25. Be2 Rhd8 "+
+"26. Bc4 Bc5 27. Kf1 Rd6 28. Rc3 f4 29. Rc2 Rg8 30. Re2 Rdg6 31. Rxe5 Rxg2 "+
+"32. Re8+ Kc7 33. Rxg8 Rxg8 34. d6+ Bxd6 35. Bxf7 Rg5 36. Bd5 Be5 37. b3 b5 " +
+"38. Bf3 b4 39. Rd5 Bf6 40. Rxg5 Bxg5 41. Ke2 b6 1/2-1/2";
 
 		x = x.replaceAll("\\d+\\.\\s*", "").replaceAll("\\s*\\d-\\d", "").replaceAll("\\d\\/\\/\\d", "");
-		System.out.println(x);
 		String[] pgn = x.split(" ");
 		int k = 0;
 
