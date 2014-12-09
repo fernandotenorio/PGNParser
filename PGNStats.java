@@ -70,17 +70,13 @@ public class PGNStats{
 
 	public static void main(String[] args) {
 
-		String x = "1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. cxd5 cxd5 5. Bf4 Nc6 6. e3 Bg4 7. f3 Bd7 8." +
-					"Bd3 g6 9. Bg5 e5 10. Nge2 exd4 11. exd4 Bg7 12. O-O h6 13. Bh4 Ne7 14. Qb3 "+
-					"Bc6 15. f4 Qb6 16. Qa3 a5 17. Qd6 Qd8 18. Qe5 Nh5 19. Qe3 Nf6 20. f5 g5 21."+
-					"Bg3 Qd7 22. h3 Kf8 23. Be5 Re8 24. a4 Kg8 25. Ng3 Nc8 26. Nb5 Nd6 27. b3 "+
-					"Nxb5 28. axb5 Bxb5 29. Rxa5 Bxd3 30. Qxd3 h5 31. Ne2 Rh6 32. Nc3 Rc8 33."+
-					"Rc5 Rc6 34. Qe3 b6 35. Rxc6 Qxc6 36. Rc1 g4 37. Bf4 Rh8 38. Ne4 Qd7 39."+
-					"Nxf6+ Bxf6 40. Rc7 Qd8 41. Be5 Bxe5 42. Qxe5 Rh6 43. h4 Qf6 44. Qxd5 Kg7 "+
-					"45. g3 Rh8 46. Rd7 Rc8 47. Rd6 Rc1+ 48. Kf2 Rc2+ 49. Ke3 Qe7+ 50. Qe5+ Kf8 "+
-					"51. Qxe7+ Kxe7 52. Rxb6 Rc3+ 53. Kf4 f6 54. Re6+ Kf7 55. Re3 Rc1 56. Ke4 "+
-					"Ke7 57. Kd5+ Kd7 58. Re6 Rc3 59. Rxf6 Rxg3 60. Rh6 Rxb3 61. Rxh5 g3 62. Rg5 "+
-					"Ke7 63. Rg6 1-0";
+		String x = "1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. d4 Nf6 5. Nf3 Bg4 6. h3 Bxf3 7. Qxf3 c6 "+
+			"8. Be3 e6 9. Bd3 Nbd7 10. O-O Bd6 11. Ne4 Nxe4 12. Bxe4 Nf6 13. Bd3 Nd5 14. "+
+			"Bd2 Qf6 15. Qxf6 gxf6 16. Be4 f5 17. Bf3 O-O-O 18. Rfd1 Be7 19. c4 Nb6 20. "+
+			"Ba5 Rd7 21. Bxb6 axb6 22. d5 cxd5 23. cxd5 e5 24. Rac1+ Kb8 25. Be2 Rhd8 "+
+			"26. Bc4 Bc5 27. Kf1 Rd6 28. Rc3 f4 29. Rc2 Rg8 30. Re2 Rdg6 31. Rxe5 Rxg2 "+
+			"32. Re8+ Kc7 33. Rxg8 Rxg8 34. d6+ Bxd6 35. Bxf7 Rg5 36. Bd5 Be5 37. b3 b5 " +
+			"38. Bf3 b4 39. Rd5 Bf6 40. Rxg5 Bxg5 41. Ke2 b6 1/2-1/2";
 
 		x = x.replaceAll("\\d+\\.\\s*", "").replaceAll("\\s*\\d-\\d", "").replaceAll("\\d\\/\\/\\d", "");
 		String[] pgn = x.split(" ");

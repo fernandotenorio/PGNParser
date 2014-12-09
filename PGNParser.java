@@ -525,11 +525,11 @@ public class PGNParser {
 		}	
 
 		if (side == WHITE && r == 1){
-			if (board[r + 2][fi] == EMPTY)
+			if (board[r + 1][fi] == EMPTY && board[r + 2][fi] == EMPTY)
 				squares.add(new Square(r + 2, fi));
 		}
 		else if (side == BLACK && r == 6){
-			if (board[r - 2][fi] == EMPTY)
+			if (board[r - 1][fi] == EMPTY && board[r - 2][fi] == EMPTY)
 				squares.add(new Square(r - 2, fi));
 		}
 
@@ -918,12 +918,12 @@ public class PGNParser {
 
 		// digit. move1 move2 digit. move1 move2 ...
 		String x = "1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. d4 Nf6 5. Nf3 Bg4 6. h3 Bxf3 7. Qxf3 c6 "+
-"8. Be3 e6 9. Bd3 Nbd7 10. O-O Bd6 11. Ne4 Nxe4 12. Bxe4 Nf6 13. Bd3 Nd5 14. "+
-"Bd2 Qf6 15. Qxf6 gxf6 16. Be4 f5 17. Bf3 O-O-O 18. Rfd1 Be7 19. c4 Nb6 20. "+
-"Ba5 Rd7 21. Bxb6 axb6 22. d5 cxd5 23. cxd5 e5 24. Rac1+ Kb8 25. Be2 Rhd8 "+
-"26. Bc4 Bc5 27. Kf1 Rd6 28. Rc3 f4 29. Rc2 Rg8 30. Re2 Rdg6 31. Rxe5 Rxg2 "+
-"32. Re8+ Kc7 33. Rxg8 Rxg8 34. d6+ Bxd6 35. Bxf7 Rg5 36. Bd5 Be5 37. b3 b5 " +
-"38. Bf3 b4 39. Rd5 Bf6 40. Rxg5 Bxg5 41. Ke2 b6 1/2-1/2";
+		"8. Be3 e6 9. Bd3 Nbd7 10. O-O Bd6 11. Ne4 Nxe4 12. Bxe4 Nf6 13. Bd3 Nd5 14. "+
+		"Bd2 Qf6 15. Qxf6 gxf6 16. Be4 f5 17. Bf3 O-O-O 18. Rfd1 Be7 19. c4 Nb6 20. "+
+		"Ba5 Rd7 21. Bxb6 axb6 22. d5 cxd5 23. cxd5 e5 24. Rac1+ Kb8 25. Be2 Rhd8 "+
+		"26. Bc4 Bc5 27. Kf1 Rd6 28. Rc3 f4 29. Rc2 Rg8 30. Re2 Rdg6 31. Rxe5 Rxg2 "+
+		"32. Re8+ Kc7 33. Rxg8 Rxg8 34. d6+ Bxd6 35. Bxf7 Rg5 36. Bd5 Be5 37. b3 b5 " +
+		"38. Bf3 b4 39. Rd5 Bf6 40. Rxg5 Bxg5 41. Ke2 b6 1/2-1/2";
 
 		x = x.replaceAll("\\d+\\.\\s*", "").replaceAll("\\s*\\d-\\d", "").replaceAll("\\d\\/\\/\\d", "");
 		String[] pgn = x.split(" ");

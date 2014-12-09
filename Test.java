@@ -8,6 +8,14 @@ public class Test{
 	static final int MID_LIMIT = OPEN_LIMIT + 20;
 	//lims = [0, min(GameFeatures.OPEN_LIMIT, self.plys), min(GameFeatures.MID_LIMIT, self.plys), self.plys]
 
+	public static float mean(int[] x){
+
+		float s = 0;
+		for (int i = 0; i < x.length; i++)
+			s += x[i];
+		return s * 1.0f/x.length;
+	}
+
 	public static void main(String[] args) throws Exception {
 		
 		BufferedReader in = new BufferedReader(new FileReader("data.pgn"));
@@ -37,12 +45,18 @@ public class Test{
 		System.out.println("Done spliting moves");
 		//Parse
 		PrintWriter writer = new PrintWriter("mobility_control.csv", "UTF-8");
+		writer.print("white_central,white_mobility,black_central,black_mobility");
 		int i = 0;
 		for (String pgn : games){
+			writer.println();
 			String[] moves = pgn.split(" ");
 			PGNStats stats = new PGNStats(moves);
 			int[][] data = stats.centralDominance();
-			System.out.println(i++);
+
+			writer.print(mean(data[0]) + "," + mean(data[1]) + "," + mean(data[2]) + "," + mean(data[3]));
+			i++;
+			if (i % 1000 == 0)
+				System.out.format("Done %.1f%s%n", i*100.0f/games.length, "%");
 		}
 		writer.close();
 
