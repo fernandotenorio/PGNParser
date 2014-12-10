@@ -7,7 +7,66 @@ public class PGNStats{
 		this.moves = moves;
 	}
 
-	public int[][] centralDominance() {
+	public int[][] pawnMobility(){
+
+		int side = PGNParser.WHITE;
+		PGNParser parser = new PGNParser();
+		
+		List<Piece> whitePieces = parser.white_pawns;
+		List<Piece> blackPieces = parser.black_pawns;
+		int[] whiteCentral = new int[moves.length];
+		int[] whiteMob = new int[moves.length];
+		int[] blackCentral = new int[moves.length];
+		int[] blackMob = new int[moves.length];
+
+		int k = 0;
+		for (String move : moves){
+			parser.procMove(move, side);
+			int cWhite = 0;
+			int mWhite = 0;
+			int cBlack = 0;
+			int mBlack = 0;
+
+			//white
+			for (Piece p : whitePieces){
+				List<Square> moves = parser.getMovesForPiece(p, PGNParser.WHITE);					
+				mWhite += moves.size();
+
+				if (moves.size() == 0)
+					continue;
+
+				for (Square sq : moves) {
+					if (sq.isCentral())
+						cWhite++;
+				}
+			}	
+			
+			//black
+			for (Piece p : blackPieces){
+				List<Square> moves = parser.getMovesForPiece(p, PGNParser.BLACK);
+				mBlack += moves.size();
+
+				if (moves.size() == 0)
+					continue;
+				
+				for (Square sq : moves) {
+					if (sq.isCentral())
+						cBlack++;
+				}
+			}	
+			
+			whiteCentral[k] = cWhite;
+			whiteMob[k] = mWhite;
+			blackCentral[k] = cBlack;
+			blackMob[k] = mBlack;
+			k++;
+			side *= -1;
+		}
+
+		return new int[][]{whiteCentral, whiteMob, blackCentral, blackMob};
+	}
+
+	public int[][] pieceMobility() {
 
 		PGNParser parser = new PGNParser();
 		int side = PGNParser.WHITE;
@@ -22,7 +81,7 @@ public class PGNStats{
 		int k = 0;
 		for (String move : moves){
 			parser.procMove(move, side);
-			int cWhite = 0;			
+			int cWhite = 0;
 			int mWhite = 0;
 			int cBlack = 0;
 			int mBlack = 0;
@@ -30,6 +89,11 @@ public class PGNStats{
 			//white
 			for (List<Piece> pieceList: whitePieces){
 				for (Piece p : pieceList){
+
+					//skip pawns
+					if (p.code == parser.WHITE_PAWN || p.code == parser.BLACK_PAWN)
+						continue;
+					
 					List<Square> moves = parser.getMovesForPiece(p, PGNParser.WHITE);					
 					mWhite += moves.size();
 
@@ -46,6 +110,11 @@ public class PGNStats{
 			//black
 			for (List<Piece> pieceList: blackPieces){
 				for (Piece p : pieceList){
+
+					//skip pawns
+					if (p.code == parser.WHITE_PAWN || p.code == parser.BLACK_PAWN)
+						continue;
+
 					List<Square> moves = parser.getMovesForPiece(p, PGNParser.BLACK);
 					mBlack += moves.size();
 
@@ -82,7 +151,7 @@ public class PGNStats{
 		String[] pgn = x.split(" ");
 
 		PGNStats stats = new PGNStats(pgn);
-		int[][] dominance = stats.centralDominance();
+		int[][] dominance = stats.pieceMobility();
 		
 		System.out.print("white_central,white_mobility,black_central,black_mobility");
 		for (int i = 0; i < dominance[0].length; i++){

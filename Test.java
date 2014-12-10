@@ -6,7 +6,6 @@ public class Test{
 
 	static final int OPEN_LIMIT = 8;
 	static final int MID_LIMIT = OPEN_LIMIT + 20;
-	//lims = [0, min(GameFeatures.OPEN_LIMIT, self.plys), min(GameFeatures.MID_LIMIT, self.plys), self.plys]
 
 	public static float mean(int[] x){
 
@@ -44,14 +43,15 @@ public class Test{
 
 		System.out.println("Done spliting moves");
 		//Parse
-		PrintWriter writer = new PrintWriter("mobility_control.csv", "UTF-8");
+		PrintWriter writer = new PrintWriter("piece_mobility.csv", "UTF-8");
 		writer.print("wc_open,wc_mid,wc_end,wm_open,wm_mid,wm_end,bc_open,bc_mid,bc_end,bm_open,bm_mid,bm_end");
 		int i = 0;
 		for (String pgn : games){
 			writer.println();
 			String[] moves = pgn.split(" ");
 			PGNStats stats = new PGNStats(moves);
-			int[][] data = stats.centralDominance();
+			//int[][] data = stats.bishopMov();
+			int[][] data = stats.pieceMobility();
 
 			float wc_open_avg = 0.0f;
 			float wm_open_avg = 0.0f;
