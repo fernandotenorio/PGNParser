@@ -137,6 +137,40 @@ public class PGNStats{
 		return new int[][]{whiteCentral, whiteMob, blackCentral, blackMob};
 	}
 
+	public int[][] doubledPawns() {
+
+		PGNParser parser = new PGNParser();
+		int side = PGNParser.WHITE;
+		int[] whiteD = new int[moves.length];
+		int[] blackD = new int[moves.length];
+		int k = 0;
+
+		for (String move : moves) {
+
+			parser.procMove(move, side);
+			int wp = 0;
+			int bp = 0;
+
+			for (int f = 0; f < 8; f++) {
+				int white = 0;
+				int black = 0;
+				for (int r = 0; r < 8; r++) {
+					if (parser.board[r][f] == PGNParser.WHITE_PAWN)
+						white++;
+					if (parser.board[r][f] == PGNParser.BLACK_PAWN)
+						black++;
+				}
+				wp += white > 1 ? white : 0;
+				bp += black > 1 ? black : 0;
+			}
+			side *= -1;
+			whiteD[k] = wp;
+			blackD[k] = bp;
+			k++;
+		}
+		return new int[][]{whiteD, blackD};
+	}
+
 	public static void main(String[] args) {
 
 		String x = "1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. d4 Nf6 5. Nf3 Bg4 6. h3 Bxf3 7. Qxf3 c6 "+
@@ -151,12 +185,12 @@ public class PGNStats{
 		String[] pgn = x.split(" ");
 
 		PGNStats stats = new PGNStats(pgn);
-		int[][] dominance = stats.pieceMobility();
+		int[][] doubledPawns = stats.doubledPawns();
 		
-		System.out.print("white_central,white_mobility,black_central,black_mobility");
-		for (int i = 0; i < dominance[0].length; i++){
+		System.out.print("white_double,black_double");
+		for (int i = 0; i < doubledPawns[0].length; i++){
 			System.out.println();
-			System.out.print(dominance[0][i] + "," + dominance[1][i] + "," + dominance[2][i] + "," + dominance[3][i]);
+			System.out.print(doubledPawns[0][i] + "," + doubledPawns[1][i]);
 		}
 
 	}

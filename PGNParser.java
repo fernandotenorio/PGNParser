@@ -83,7 +83,7 @@ public class PGNParser {
 	static int[][] ROOK_DIRS = new int[][]{{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
 
 	//board[r][f] is rank r + 1 file f + 1
-	private int[][] board = new int[8][8];
+	protected int[][] board = new int[8][8];
 	private int white_castle;
 	private int black_castle;
 
